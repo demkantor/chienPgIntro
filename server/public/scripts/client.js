@@ -2,7 +2,23 @@ $( document ).ready( onReady );
 
 function onReady(){
     $( '#addSongButton' ).on( 'click', addSong );
+    $('#songList').on('click', '.delete', deleteClick);
     getSongs();
+}
+
+function deleteClick(){
+    let selectedId = $(this).parent().data('id');
+    console.log(selectedId);
+    $.ajax({
+        type: 'DELETE',
+        url: `/songs/${selectedId}`
+    }).then( function( response ){
+        console.log( 'back from GET with:', response );
+        getSongs();
+    }).catch( function( err ){
+        console.log( err );
+        alert( 'no worky' );
+    }) // end ajax
 }
 
 function addSong(){
@@ -35,8 +51,24 @@ function getSongs(){
         url: '/songs'
     }).then( function( response ){
         console.log( 'back from GET with:', response );
+        displaySongs(response);
     }).catch( function( err ){
         console.log( err );
         alert( 'no worky' );
     }) // end ajax
 } // end getSongs
+
+
+function displaySongs(responseArray){
+    // loop through the array
+    // append each song to DOM
+    console.log(responseArray);
+    $('#songList').empty();
+    for (let i = 0; i <responseArray.length; i++){
+        $('#songList').append(`
+        <li data-id="${responseArray[i].id}">(${responseArray[i].id}) ${responseArray[i].artist} : ${responseArray[i].track}
+            <button class="delete">Delete</button>
+        </li>
+        `)
+    }
+}

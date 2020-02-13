@@ -3,24 +3,47 @@ const express = require( 'express' );
 const app = express();
 const bodyParser = require( 'body-parser' );
 const pg = require( 'pg' );
+
+
 // uses
 app.use( express.static( 'server/public' ) );
 app.use( bodyParser.urlencoded( { extended: true } ) );
+
+
 // globals
 const port = 5000;
 // db setup
 const pool = new pg.Pool({
+    user: 'postgres',
+    password: '1728fox',
     database: 'music_library',
     host: 'localhost',
     port: 5432,
     max: 12,
     idleTimeoutMillis: 30000
 }); //end pool
+
 // server up
 app.listen( port, ()=>{
     console.log( 'server up on:', port );
 }) //end server up
 // routes
+
+app.delete('/songs/:id', (req, res) => {
+    console.log('hello from get/id', req.params.id);
+    let queryString = `DELETE FROM songs WHERE "id" = ${req.params.id}`;
+    // try to run query on our pool
+    pool.query( queryString ).then( ( results )=>{
+        // if successful, we'll send response with rows from results
+        res.sendStatus(200);
+    }).catch( ( err )=>{
+        // catch any errors
+        console.log( err );
+        res.sendStatus( 500 );
+    })
+
+});
+
 app.get( '/songs', ( req, res )=>{
     console.log( 'in /songs GET' );
     // set up a query 
